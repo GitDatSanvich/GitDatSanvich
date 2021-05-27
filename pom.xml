@@ -9,6 +9,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>sweet-home</module>
+		<module>common</module>
 	</modules>
 	<properties>
 		<spring-boot.version>2.1.5.RELEASE</spring-boot.version>
