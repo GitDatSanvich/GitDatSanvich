@@ -10,14 +10,12 @@ import com.gitdatsanvich.sweethome.model.entity.User;
 import com.gitdatsanvich.sweethome.service.GroupService;
 import com.gitdatsanvich.sweethome.service.UserGroupService;
 import com.gitdatsanvich.sweethome.service.UserService;
-import org.apache.tomcat.util.security.MD5Encoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.nio.charset.StandardCharsets;
 
 /**
  * <p>
