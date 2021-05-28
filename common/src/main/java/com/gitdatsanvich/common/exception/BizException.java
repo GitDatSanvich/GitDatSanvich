@@ -29,4 +29,8 @@ public class BizException extends BaseException {
      * sweetHome信息异常
      */
     public static final BizException USER_INFO_EXCEPTION = new BizException("E1000001", "{0}");
+    /**
+     * 文件类异常
+     */
+    public static final BizException FILE_EXCEPTION = new BizException("E1000001", "{0}");
 }
