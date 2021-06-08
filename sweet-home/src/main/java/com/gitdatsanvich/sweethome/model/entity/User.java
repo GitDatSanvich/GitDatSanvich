@@ -62,6 +62,11 @@ public class User extends Model<User> {
     private String email;
 
     /**
+     * 头像
+     */
+    private String avatar;
+
+    /**
      * 添加时间
      */
     private Long createTime;

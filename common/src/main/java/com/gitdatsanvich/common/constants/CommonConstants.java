@@ -6,4 +6,5 @@ package com.gitdatsanvich.common.constants;
  */
 public interface CommonConstants {
 
+    int ZERO = 0;
 }

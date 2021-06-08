@@ -1,5 +1,7 @@
 package com.gitdatsanvich.sweethome.util;
 
+import com.baomidou.mybatisplus.core.toolkit.StringPool;
+import com.gitdatsanvich.common.constants.CommonConstants;
 import com.gitdatsanvich.common.constants.FileConstants;
 import com.gitdatsanvich.common.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
@@ -7,24 +9,26 @@ import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
-import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author TangChen
- * @date 2021/4/28 11:21
+ * @date 2021/5/28 14:28
  */
 @Slf4j
-@Component
-public class ThumbnailUtil {
+public class StorageUtil {
+
 
     private static final String THUMBNAIL_SUFFIX = "png";
     /*针对每一像素的光感度*/
@@ -32,24 +36,55 @@ public class ThumbnailUtil {
     /*针对一张图片的黑色像素百分比*/
     private static final int AVERAGE = 10;
 
+    private static final int MAX_NUM = 1;
+
     private static final AtomicInteger WORKING_NUM = new AtomicInteger(0);
 
-    private static final int MAX_NUM = 3;
-
+    private static final String URL_PREFIX = "/data/";
     /**
-     * @param file file
-     * @param type type
-     * @return 缩略图路径
-     * @throws BizException BizException
+     * 缩放比
      */
-    public String getThumbnail(MultipartFile file, String type) throws BizException {
+    private static final int rate = 100 / 50;
+
+    public static String save(InputStream inputStream, String suffix, String uuid) throws IOException {
+        String destination = URL_PREFIX + uuid + StringPool.DOT + suffix;
+        int index;
+        byte[] bytes = new byte[1024];
+        FileOutputStream downloadFile = new FileOutputStream(destination);
+        while ((index = inputStream.read(bytes)) != -1) {
+            downloadFile.write(bytes, 0, index);
+            downloadFile.flush();
+        }
+        downloadFile.close();
+        inputStream.close();
+        return destination;
+    }
+
+    public static String save(MultipartFile file, String uuid) throws IOException, BizException {
+        InputStream inputStream = file.getInputStream();
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            throw BizException.FILE_EXCEPTION.newInstance("文件名称获取为空");
+        }
+        int num = originalFilename.lastIndexOf(".");
+        if (-1 == num) {
+            throw BizException.FILE_EXCEPTION.newInstance("文件后缀获取失败");
+        }
+        String suffix = originalFilename.substring(num + 1);
+        return save(inputStream, suffix, uuid);
+    }
+
+    public static String saveThumbnail(MultipartFile file, String type, String uuid) throws BizException {
         long start = System.currentTimeMillis();
         String thumbnailUrl = null;
         try {
             InputStream inputStream = file.getInputStream();
             /*视频缩略图*/
             if (FileConstants.VIDEO.equals(type)) {
-                thumbnailUrl = getVideoThumbnail(inputStream);
+                thumbnailUrl = getVideoThumbnail(inputStream, CommonConstants.ZERO, uuid);
+            }
+            if (FileConstants.IMAGE.equals(type)) {
+                thumbnailUrl = getImageThumbnail(inputStream);
             }
             long end = System.currentTimeMillis();
             log.info("缩略图生成时间为" + (end - start));
@@ -60,7 +95,17 @@ public class ThumbnailUtil {
         }
     }
 
-    private String getVideoThumbnail(InputStream inputStream) throws FrameGrabber.Exception, BizException {
+    private static String getImageThumbnail(InputStream inputStream) throws IOException {
+        Image thumbImg = ImageIO.read(inputStream);
+        int width = thumbImg.getWidth(null);
+        int height = thumbImg.getHeight(null);
+        System.out.println(width);
+        System.out.println(height);
+        return null;
+    }
+
+
+    private static String getVideoThumbnail(InputStream inputStream, int retry, String uuid) throws FrameGrabber.Exception, BizException {
         /*视频队列最大时间(三秒)*/
         if (WORKING_NUM.get() <= MAX_NUM) {
             WORKING_NUM.incrementAndGet();
@@ -70,35 +115,40 @@ public class ThumbnailUtil {
             try {
                 //获取视频总帧数
                 long lengthInTime = fFmpegFrameGrabber.getLengthInTime();
-                String videoThumbnail = getVideoThumbnail(fFmpegFrameGrabber, lengthInTime);
-                /*关闭视频*/
-                log.info("视频关闭");
-                closeGrabber(fFmpegFrameGrabber);
-                log.info("视频关闭完成");
-                return videoThumbnail;
+                return getVideoThumbnail(fFmpegFrameGrabber, lengthInTime, uuid);
             } catch (Exception e) {
                 /*关闭视频*/
-                closeGrabber(fFmpegFrameGrabber);
                 log.error("视频缩略图异常", e);
                 throw BizException.FILE_EXCEPTION.newInstance("视频缩略图生成异常");
+            }finally {
+                /*关闭视频*/
+                log.info("视频关闭");
+                log.info("视频关闭完成");
+                closeGrabber(fFmpegFrameGrabber);
             }
         } else {
             try {
+                if (retry <= 5) {
+                    throw BizException.FILE_EXCEPTION.newInstance("视频缩略图队列占用!");
+                }
+                /*睡一秒*/
                 Thread.sleep(1000);
+                retry++;
             } catch (InterruptedException ignored) {
             }
-            getVideoThumbnail(inputStream);
+            getVideoThumbnail(inputStream, retry, uuid);
         }
         throw BizException.FILE_EXCEPTION.newInstance("视频缩略图解析资源被占用 请稍后再试");
     }
 
-    private void closeGrabber(FFmpegFrameGrabber fFmpegFrameGrabber) throws FrameGrabber.Exception {
+    private static void closeGrabber(FFmpegFrameGrabber fFmpegFrameGrabber) throws FrameGrabber.Exception {
         /*视频解析器停止关闭*/
         fFmpegFrameGrabber.stop();
         fFmpegFrameGrabber.close();
         /*同时解析数量维护*/
         WORKING_NUM.decrementAndGet();
     }
+
 
     /**
      * 视频缩略图生成
@@ -109,7 +159,7 @@ public class ThumbnailUtil {
      * @throws IOException  IOException
      * @throws BizException BizException
      */
-    private String getVideoThumbnail(FFmpegFrameGrabber fFmpegFrameGrabber, long lengthInTime) throws IOException, BizException {
+    private static String getVideoThumbnail(FFmpegFrameGrabber fFmpegFrameGrabber, long lengthInTime, String uuid) throws IOException, BizException {
         for (int i = 0; i < AVERAGE; i++) {
             /*截取平均值*/
             long l = lengthInTime / AVERAGE * (i + 1);
@@ -132,10 +182,12 @@ public class ThumbnailUtil {
                 ByteArrayInputStream imageInputStream = new ByteArrayInputStream(out.toByteArray());
                 /*这里返回的是视频原截图路径*/
                 /*缩略图 = 原路径分割"."在“."前面添加“_200x200”*/
+                return save(imageInputStream, THUMBNAIL_SUFFIX, uuid);
             }
         }
         return null;
     }
+
 
     /**
      * 判断当前图片是否为黑
@@ -171,4 +223,3 @@ public class ThumbnailUtil {
         return i1 < 5;
     }
 }
-

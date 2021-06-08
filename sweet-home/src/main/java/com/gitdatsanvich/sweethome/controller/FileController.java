@@ -1,7 +1,11 @@
 package com.gitdatsanvich.sweethome.controller;
 
+import com.baomidou.mybatisplus.core.toolkit.StringPool;
+import com.gitdatsanvich.common.exception.BizException;
 import com.gitdatsanvich.common.util.R;
 import com.gitdatsanvich.sweethome.model.dto.FileResponseDTO;
+import com.gitdatsanvich.sweethome.util.FileHeaderCheckUtil;
+import com.gitdatsanvich.sweethome.util.StorageUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author TangChen
@@ -32,7 +37,33 @@ public class FileController {
     public R<List<FileResponseDTO>> uploadFileList(@RequestParam("fileList") List<MultipartFile> fileList,
                                                    @RequestParam(name = "uploadType", required = false) String uploadType,
                                                    @RequestParam(name = "needThumbnail", required = false) Boolean needThumbnail) {
-
-        return R.ok();
+        List<FileResponseDTO> fileResponseList = new ArrayList<>();
+        try {
+            if (fileList == null || fileList.size() == 0) {
+                throw BizException.FILE_EXCEPTION.newInstance("文件为空上传失败");
+            }
+            if (needThumbnail == null) {
+                needThumbnail = false;
+            }
+            for (MultipartFile file : fileList) {
+                /*文件生成唯一UUID*/
+                String uuid = UUID.randomUUID().toString().replaceAll(StringPool.DASH, StringPool.EMPTY);
+                FileResponseDTO fileResponseDTO = new FileResponseDTO();
+                String type = FileHeaderCheckUtil.checkFileHeader(file, uploadType);
+                String url = StorageUtil.save(file, uuid);
+                String thumbnail = null;
+                if (needThumbnail) {
+                    thumbnail = StorageUtil.saveThumbnail(file, type, uuid);
+                }
+                fileResponseDTO.setFileName(file.getOriginalFilename());
+                fileResponseDTO.setThumbnail(thumbnail);
+                fileResponseDTO.setUrl(url);
+                fileResponseDTO.setFileType(type);
+                fileResponseList.add(fileResponseDTO);
+            }
+        } catch (Exception e) {
+            log.error("文件上传失败" + e.getMessage());
+        }
+        return R.ok(fileResponseList);
     }
 }

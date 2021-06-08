@@ -77,6 +77,11 @@
 			<artifactId>ffmpeg-platform</artifactId>
 			<version>4.0.2-1.4.3</version>
 		</dependency>
+		<dependency>
+			<groupId>net.coobird</groupId>
+			<artifactId>thumbnailator</artifactId>
+			<version>0.4.8</version>
+		</dependency>
 	</dependencies>
 
 	<build>
