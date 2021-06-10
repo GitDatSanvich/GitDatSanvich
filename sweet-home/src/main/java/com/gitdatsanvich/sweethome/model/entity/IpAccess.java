@@ -3,58 +3,42 @@ package com.gitdatsanvich.sweethome.model.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author TangChen
- * @since 2021-05-25
+ * @since 2021-06-09
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class Message extends Model<Message> {
+@AllArgsConstructor
+@NoArgsConstructor
+public class IpAccess extends Model<IpAccess> {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 消息ID
+     * 主键
      */
     @TableId(type = IdType.ASSIGN_UUID)
-    private String messageId;
+    private String id;
 
     /**
-     * 内容
+     * 访问IP
      */
-    private String message;
+    private String ip;
 
     /**
-     * 生成时间
+     * 访问时间
      */
-    private Long createTime;
-
-    /**
-     * 更新时间
-     */
-    private Long updateTime;
-
-    /**
-     * 删除标识
-     */
-    private String delFlag;
-
-    /**
-     * 生成数据的人
-     */
-    private String createUserId;
-
-    /**
-     * 更新的人
-     */
-    private String updateUserId;
+    private Long accessTime;
 }

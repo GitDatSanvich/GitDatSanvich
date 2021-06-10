@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gitdatsanvich.sweethome.mapper.BlockIpMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.gitdatsanvich.sweethome.model.entity.BlockIp">
+        <id column="id" property="id"/>
+        <result column="ip" property="ip"/>
+        <result column="black_time" property="blackTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, ip, black_time
+    </sql>
+    <select id="isBlack" resultType="java.lang.Boolean">
+        SELECT COUNT(bi.id) != 0
+        FROM block_ip bi
+        WHERE ip = #{ip}
+          AND bi.black_time &lt; #{now}
+          AND bi.black_time &gt; (#{now} - 7200000);
+    </select>
+
+</mapper>

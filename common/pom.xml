@@ -6,7 +6,6 @@
         <groupId>com.gitdatsanvich</groupId>
         <artifactId>GitDatSanvich</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/>
     </parent>
     <artifactId>common</artifactId>
     <version>0.0.1-SNAPSHOT</version>

@@ -7,7 +7,6 @@ import com.gitdatsanvich.common.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,7 +18,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -40,25 +38,13 @@ public class StorageUtil {
 
     private static final AtomicInteger WORKING_NUM = new AtomicInteger(0);
 
-    private static final String URL_PREFIX = "/data/";
+    private static final String URL_PREFIX = "data/";
+
+    private static final String THUMBNAIL_SIGN = "_thumbnail";
     /**
      * 缩放比
      */
-    private static final int rate = 100 / 50;
-
-    public static String save(InputStream inputStream, String suffix, String uuid) throws IOException {
-        String destination = URL_PREFIX + uuid + StringPool.DOT + suffix;
-        int index;
-        byte[] bytes = new byte[1024];
-        FileOutputStream downloadFile = new FileOutputStream(destination);
-        while ((index = inputStream.read(bytes)) != -1) {
-            downloadFile.write(bytes, 0, index);
-            downloadFile.flush();
-        }
-        downloadFile.close();
-        inputStream.close();
-        return destination;
-    }
+    private static final int RATE = 100 / 50;
 
     public static String save(MultipartFile file, String uuid) throws IOException, BizException {
         InputStream inputStream = file.getInputStream();
@@ -83,8 +69,13 @@ public class StorageUtil {
             if (FileConstants.VIDEO.equals(type)) {
                 thumbnailUrl = getVideoThumbnail(inputStream, CommonConstants.ZERO, uuid);
             }
+            /*图片缩略图*/
             if (FileConstants.IMAGE.equals(type)) {
-                thumbnailUrl = getImageThumbnail(inputStream);
+                String originalFilename = file.getOriginalFilename();
+                assert originalFilename != null;
+                int num = originalFilename.lastIndexOf(".");
+                String suffix = originalFilename.substring(num + 1);
+                thumbnailUrl = getImageThumbnail(inputStream, suffix, uuid);
             }
             long end = System.currentTimeMillis();
             log.info("缩略图生成时间为" + (end - start));
@@ -95,17 +86,40 @@ public class StorageUtil {
         }
     }
 
-    private static String getImageThumbnail(InputStream inputStream) throws IOException {
+
+    private static String save(InputStream inputStream, String suffix, String uuid) throws IOException {
+        String fileName = uuid + StringPool.DOT + suffix;
+        String destination = URL_PREFIX + fileName;
+        int index;
+        byte[] bytes = new byte[1024];
+        FileOutputStream downloadFile = new FileOutputStream(destination);
+        while ((index = inputStream.read(bytes)) != -1) {
+            downloadFile.write(bytes, 0, index);
+            downloadFile.flush();
+        }
+        downloadFile.close();
+        inputStream.close();
+        return destination;
+    }
+
+    private static String getImageThumbnail(InputStream inputStream, String suffix, String uuid) throws IOException {
         Image thumbImg = ImageIO.read(inputStream);
         int width = thumbImg.getWidth(null);
         int height = thumbImg.getHeight(null);
-        System.out.println(width);
-        System.out.println(height);
-        return null;
+        width = width / RATE;
+        height = height / RATE;
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics graphics = image.getGraphics();
+        graphics.drawImage(thumbImg.getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH), 0, 0, Color.LIGHT_GRAY, null);
+        graphics.dispose();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, suffix, outputStream);
+        ByteArrayInputStream inputStreamWrite = new ByteArrayInputStream(outputStream.toByteArray());
+        return save(inputStreamWrite, suffix, uuid + THUMBNAIL_SIGN);
     }
 
 
-    private static String getVideoThumbnail(InputStream inputStream, int retry, String uuid) throws FrameGrabber.Exception, BizException {
+    private static String getVideoThumbnail(InputStream inputStream, int retry, String uuid) throws IOException, BizException {
         /*视频队列最大时间(三秒)*/
         if (WORKING_NUM.get() <= MAX_NUM) {
             WORKING_NUM.incrementAndGet();
@@ -120,11 +134,11 @@ public class StorageUtil {
                 /*关闭视频*/
                 log.error("视频缩略图异常", e);
                 throw BizException.FILE_EXCEPTION.newInstance("视频缩略图生成异常");
-            }finally {
+            } finally {
                 /*关闭视频*/
                 log.info("视频关闭");
                 log.info("视频关闭完成");
-                closeGrabber(fFmpegFrameGrabber);
+                closeGrabber(fFmpegFrameGrabber, inputStream);
             }
         } else {
             try {
@@ -141,10 +155,11 @@ public class StorageUtil {
         throw BizException.FILE_EXCEPTION.newInstance("视频缩略图解析资源被占用 请稍后再试");
     }
 
-    private static void closeGrabber(FFmpegFrameGrabber fFmpegFrameGrabber) throws FrameGrabber.Exception {
+    private static void closeGrabber(FFmpegFrameGrabber fFmpegFrameGrabber, InputStream inputStream) throws IOException {
         /*视频解析器停止关闭*/
         fFmpegFrameGrabber.stop();
         fFmpegFrameGrabber.close();
+        inputStream.close();
         /*同时解析数量维护*/
         WORKING_NUM.decrementAndGet();
     }
@@ -179,10 +194,14 @@ public class StorageUtil {
                 if (!b) {
                     throw BizException.FILE_EXCEPTION.newInstance("缩略图生成异常");
                 }
+                ByteArrayInputStream imageInputStreamForThumbnail = new ByteArrayInputStream(out.toByteArray());
                 ByteArrayInputStream imageInputStream = new ByteArrayInputStream(out.toByteArray());
                 /*这里返回的是视频原截图路径*/
                 /*缩略图 = 原路径分割"."在“."前面添加“_200x200”*/
-                return save(imageInputStream, THUMBNAIL_SUFFIX, uuid);
+                String save = save(imageInputStream, THUMBNAIL_SUFFIX, uuid);
+                getImageThumbnail(imageInputStreamForThumbnail, THUMBNAIL_SUFFIX, uuid + THUMBNAIL_SIGN);
+                out.close();
+                return save;
             }
         }
         return null;

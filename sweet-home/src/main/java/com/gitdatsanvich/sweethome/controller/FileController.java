@@ -49,9 +49,12 @@ public class FileController {
                 /*文件生成唯一UUID*/
                 String uuid = UUID.randomUUID().toString().replaceAll(StringPool.DASH, StringPool.EMPTY);
                 FileResponseDTO fileResponseDTO = new FileResponseDTO();
+                /*文件格式校验*/
                 String type = FileHeaderCheckUtil.checkFileHeader(file, uploadType);
+                /*文件保存*/
                 String url = StorageUtil.save(file, uuid);
                 String thumbnail = null;
+                /*是否需要缩略图 是 执行*/
                 if (needThumbnail) {
                     thumbnail = StorageUtil.saveThumbnail(file, type, uuid);
                 }
