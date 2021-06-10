@@ -7,9 +7,9 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 123456
-    url: jdbc:mysql://sandwich:3309/gitdatsanvich?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+#    username: 老子数据库能让你瞅着？
+#    password: 老子数据库能让你瞅着？
+#    url: 老子数据库能让你瞅着？
 # MyBaits-plus配置
 mybatis-plus:
   mapper-locations: classpath:/mapper/*Mapper.xml
