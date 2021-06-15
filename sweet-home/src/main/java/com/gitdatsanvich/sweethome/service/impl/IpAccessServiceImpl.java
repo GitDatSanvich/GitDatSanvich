@@ -17,8 +17,9 @@ import javax.annotation.Resource;
 
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
+ *
  * @author TangChen
  * @since 2021-06-09
  */
@@ -35,7 +36,7 @@ public class IpAccessServiceImpl extends ServiceImpl<IpAccessMapper, IpAccess> i
         logger.info("ip访问：" + ip);
         /*查询是否黑名单用户*/
         if (blockIpService.isBlack(ip)) {
-            return new AccessDTO(0, false);
+            return new AccessDTO(ip, 0, false, 0);
         }
         /*存入访问*/
         long now = System.currentTimeMillis();
@@ -44,8 +45,8 @@ public class IpAccessServiceImpl extends ServiceImpl<IpAccessMapper, IpAccess> i
         /*查询5分钟内是否有100次请求*/
         if (baseMapper.isBlack(ip, now)) {
             blockIpService.save(new BlockIp(null, ip, now));
-            return new AccessDTO(null, false);
+            return new AccessDTO(ip, null, false, 0);
         }
-        return new AccessDTO(this.count(Wrappers.<IpAccess>lambdaQuery().eq(IpAccess::getIp, ip)), true);
+        return new AccessDTO(ip, this.count(Wrappers.<IpAccess>lambdaQuery().eq(IpAccess::getIp, ip)), true, this.count(Wrappers.lambdaQuery()));
     }
 }

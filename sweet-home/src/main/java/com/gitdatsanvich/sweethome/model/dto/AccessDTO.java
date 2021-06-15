@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccessDTO {
+    private String ip;
     private Integer accessTime;
     private Boolean accessAble;
+    private Integer totalAccessTime;
 }

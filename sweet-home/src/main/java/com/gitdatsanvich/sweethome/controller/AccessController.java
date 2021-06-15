@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 public class AccessController {
     @Resource
     private IpAccessService ipAccessService;
+
     /**
      * 记录并确认是否可以访问
      *
@@ -49,7 +50,7 @@ public class AccessController {
             ip = ipArray[0];
         }
         if (ip == null || StringPool.EMPTY.equals(ip)) {
-            return R.ok(new AccessDTO(0, true));
+            return R.ok(new AccessDTO(ip, 0, true, 0));
         }
         return R.ok(ipAccessService.access(ip));
     }

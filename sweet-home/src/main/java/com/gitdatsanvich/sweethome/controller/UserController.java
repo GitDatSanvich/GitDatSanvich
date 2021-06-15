@@ -2,6 +2,7 @@ package com.gitdatsanvich.sweethome.controller;
 
 import com.gitdatsanvich.common.exception.BizException;
 import com.gitdatsanvich.common.util.R;
+import com.gitdatsanvich.sweethome.interceptor.CreditsInterceptor;
 import com.gitdatsanvich.sweethome.model.dto.RegisterDTO;
 import com.gitdatsanvich.sweethome.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ public class UserController {
             userService.registered(registerDTO);
         } catch (BizException e) {
             R.failed(e.getMessage());
+            System.out.println(new CreditsInterceptor());
         }
         return R.ok();
     }

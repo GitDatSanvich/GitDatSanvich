@@ -199,7 +199,7 @@ public class StorageUtil {
                 /*这里返回的是视频原截图路径*/
                 /*缩略图 = 原路径分割"."在“."前面添加“_200x200”*/
                 String save = save(imageInputStream, THUMBNAIL_SUFFIX, uuid);
-                getImageThumbnail(imageInputStreamForThumbnail, THUMBNAIL_SUFFIX, uuid + THUMBNAIL_SIGN);
+                getImageThumbnail(imageInputStreamForThumbnail, THUMBNAIL_SUFFIX, uuid);
                 out.close();
                 return save;
             }
