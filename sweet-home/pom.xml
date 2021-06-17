@@ -77,10 +77,19 @@
 			<artifactId>ffmpeg-platform</artifactId>
 			<version>4.0.2-1.4.3</version>
 		</dependency>
+		<!--缩略图生成工具-->
 		<dependency>
 			<groupId>net.coobird</groupId>
 			<artifactId>thumbnailator</artifactId>
-			<version>0.4.8</version>
+			<version>[0.4, 0.5)</version>
+		</dependency>
+		<!--图片读取格式支持库-->
+		<dependency>
+			<groupId>com.github.nintha</groupId>
+			<artifactId>webp-imageio-core</artifactId>
+			<version>0.1.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/webp-imageio-core-0.1.0.jar</systemPath>
 		</dependency>
 	</dependencies>
 

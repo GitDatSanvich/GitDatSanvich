@@ -5,13 +5,12 @@ import com.gitdatsanvich.common.constants.CommonConstants;
 import com.gitdatsanvich.common.constants.FileConstants;
 import com.gitdatsanvich.common.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -41,41 +40,32 @@ public class StorageUtil {
     private static final String URL_PREFIX = "data/";
 
     private static final String THUMBNAIL_SIGN = "_thumbnail";
-    /**
-     * 缩放比
-     */
-    private static final int RATE = 100 / 50;
 
-    public static String save(MultipartFile file, String uuid) throws IOException, BizException {
-        InputStream inputStream = file.getInputStream();
-        String originalFilename = file.getOriginalFilename();
-        if (originalFilename == null) {
+    public static String save(String fileName, InputStream fileInputStream, String uuid) throws IOException, BizException {
+        if (fileName == null) {
             throw BizException.FILE_EXCEPTION.newInstance("文件名称获取为空");
         }
-        int num = originalFilename.lastIndexOf(".");
+        int num = fileName.lastIndexOf(".");
         if (-1 == num) {
             throw BizException.FILE_EXCEPTION.newInstance("文件后缀获取失败");
         }
-        String suffix = originalFilename.substring(num + 1);
-        return save(inputStream, suffix, uuid);
+        String suffix = fileName.substring(num + 1);
+        return save(fileInputStream, suffix, uuid);
     }
 
-    public static String saveThumbnail(MultipartFile file, String type, String uuid) throws BizException {
+    public static String saveThumbnail(String fileName, InputStream fileInputStream, String type, String uuid) throws BizException {
         long start = System.currentTimeMillis();
         String thumbnailUrl = null;
         try {
-            InputStream inputStream = file.getInputStream();
             /*视频缩略图*/
             if (FileConstants.VIDEO.equals(type)) {
-                thumbnailUrl = getVideoThumbnail(inputStream, CommonConstants.ZERO, uuid);
+                thumbnailUrl = getVideoThumbnail(fileInputStream, CommonConstants.ZERO, uuid);
             }
             /*图片缩略图*/
             if (FileConstants.IMAGE.equals(type)) {
-                String originalFilename = file.getOriginalFilename();
-                assert originalFilename != null;
-                int num = originalFilename.lastIndexOf(".");
-                String suffix = originalFilename.substring(num + 1);
-                thumbnailUrl = getImageThumbnail(inputStream, suffix, uuid);
+                int num = fileName.lastIndexOf(".");
+                String suffix = fileName.substring(num + 1);
+                thumbnailUrl = getImageThumbnail(fileInputStream, suffix, uuid);
             }
             long end = System.currentTimeMillis();
             log.info("缩略图生成时间为" + (end - start));
@@ -103,17 +93,8 @@ public class StorageUtil {
     }
 
     private static String getImageThumbnail(InputStream inputStream, String suffix, String uuid) throws IOException {
-        Image thumbImg = ImageIO.read(inputStream);
-        int width = thumbImg.getWidth(null);
-        int height = thumbImg.getHeight(null);
-        width = width / RATE;
-        height = height / RATE;
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics graphics = image.getGraphics();
-        graphics.drawImage(thumbImg.getScaledInstance(width, height, BufferedImage.SCALE_SMOOTH), 0, 0, Color.LIGHT_GRAY, null);
-        graphics.dispose();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(image, suffix, outputStream);
+        Thumbnails.of(inputStream).scale(0.5).outputFormat(suffix).outputQuality(0.5).toOutputStream(outputStream);
         ByteArrayInputStream inputStreamWrite = new ByteArrayInputStream(outputStream.toByteArray());
         return save(inputStreamWrite, suffix, uuid + THUMBNAIL_SIGN);
     }
@@ -137,8 +118,8 @@ public class StorageUtil {
             } finally {
                 /*关闭视频*/
                 log.info("视频关闭");
-                log.info("视频关闭完成");
                 closeGrabber(fFmpegFrameGrabber, inputStream);
+                log.info("视频关闭完成");
             }
         } else {
             try {
@@ -158,6 +139,7 @@ public class StorageUtil {
     private static void closeGrabber(FFmpegFrameGrabber fFmpegFrameGrabber, InputStream inputStream) throws IOException {
         /*视频解析器停止关闭*/
         fFmpegFrameGrabber.stop();
+        fFmpegFrameGrabber.release();
         fFmpegFrameGrabber.close();
         inputStream.close();
         /*同时解析数量维护*/
@@ -240,5 +222,26 @@ public class StorageUtil {
         log.info("总像素" + totalPixel + "黑色像素为" + o + "判断为" + totalPixel / o);
         /*20一下判断黑像素就是好图%*/
         return i1 < 5;
+    }
+
+    /**
+     * 克隆流
+     *
+     * @param input input
+     * @return ByteArrayOutputStream
+     */
+    public static ByteArrayOutputStream cloneInputStream(InputStream input) throws BizException {
+        try {
+            ByteArrayOutputStream bas = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = input.read(buffer)) > -1) {
+                bas.write(buffer, 0, len);
+            }
+            bas.flush();
+            return bas;
+        } catch (IOException e) {
+            throw BizException.FILE_EXCEPTION.newInstance("流复制失败");
+        }
     }
 }

@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -52,13 +55,19 @@ public class FileController {
                 /*文件格式校验*/
                 String type = FileHeaderCheckUtil.checkFileHeader(file, uploadType);
                 /*文件保存*/
-                String url = StorageUtil.save(file, uuid);
+                ByteArrayOutputStream outputStream = StorageUtil.cloneInputStream(file.getInputStream());
+                // 打开两个新的输入流
+                InputStream streamForThumbnail = new ByteArrayInputStream(outputStream.toByteArray());
+                InputStream streamForSave = new ByteArrayInputStream(outputStream.toByteArray());
+                String originalFilename = file.getOriginalFilename();
+                assert originalFilename != null;
+                String url = StorageUtil.save(originalFilename, streamForSave, uuid);
                 String thumbnail = null;
                 /*是否需要缩略图 是 执行*/
                 if (needThumbnail) {
-                    thumbnail = StorageUtil.saveThumbnail(file, type, uuid);
+                    thumbnail = StorageUtil.saveThumbnail(originalFilename, streamForThumbnail, type, uuid);
                 }
-                fileResponseDTO.setFileName(file.getOriginalFilename());
+                fileResponseDTO.setFileName(originalFilename);
                 fileResponseDTO.setThumbnail(thumbnail);
                 fileResponseDTO.setUrl(url);
                 fileResponseDTO.setFileType(type);
