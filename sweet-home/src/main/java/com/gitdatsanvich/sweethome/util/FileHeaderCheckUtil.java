@@ -40,7 +40,6 @@ public class FileHeaderCheckUtil {
         ALLOWED_TYPE_MAP.put(FileConstants.AUDIO, "音频文件暂不支持%s格式");
         /*支持的视频文件*/
         ALLOWED_TYPE_MAP.put("mp4", FileConstants.VIDEO);
-        ALLOWED_TYPE_MAP.put("flv", FileConstants.VIDEO);
         /*视频文件异常*/
         ALLOWED_TYPE_MAP.put(FileConstants.VIDEO, "视频文件暂不支持%s格式");
         /*支持的图片文件*/
@@ -72,13 +71,10 @@ public class FileHeaderCheckUtil {
         DEFINED_TYPE_MAP.put("png", FileConstants.IMAGE);
         DEFINED_TYPE_MAP.put("gif", FileConstants.IMAGE);
         DEFINED_TYPE_MAP.put("bmp", FileConstants.IMAGE);
-
         DEFINED_TYPE_MAP.put("mp3", FileConstants.AUDIO);
         DEFINED_TYPE_MAP.put("m4a", FileConstants.AUDIO);
         DEFINED_TYPE_MAP.put("wav", FileConstants.AUDIO);
         DEFINED_TYPE_MAP.put("aac", FileConstants.AUDIO);
-
-        DEFINED_TYPE_MAP.put("flv", FileConstants.VIDEO);
         DEFINED_TYPE_MAP.put("mp4", FileConstants.VIDEO);
         DEFINED_TYPE_MAP.put(FileConstants.OTHER, FileConstants.OTHER);
     }

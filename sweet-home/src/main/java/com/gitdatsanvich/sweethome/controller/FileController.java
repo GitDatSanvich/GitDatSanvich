@@ -82,6 +82,7 @@ public class FileController {
             }
         } catch (Exception e) {
             log.error("文件上传失败" + e.getMessage());
+            return R.failed(e.getMessage());
         }
         return R.ok(fileResponseList);
     }
