@@ -9,6 +9,7 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
+import org.springframework.context.annotation.Scope;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2021/5/28 14:28
  */
 @Slf4j
+@Scope(value = "prototype")
 public class StorageUtil {
 
 
@@ -108,18 +110,17 @@ public class StorageUtil {
                 log.info("视频关闭完成");
             }
         } else {
-            try {
-                if (retry <= 5) {
-                    throw BizException.FILE_EXCEPTION.newInstance("视频缩略图队列占用!");
+            if (retry <= 5) {
+                try {
+                    /*睡一秒*/
+                    Thread.sleep(1000);
+                    retry++;
+                } catch (InterruptedException ignored) {
                 }
-                /*睡一秒*/
-                Thread.sleep(1000);
-                retry++;
-            } catch (InterruptedException ignored) {
+                getVideoThumbnail(inputStream, retry, uuid);
             }
-            getVideoThumbnail(inputStream, retry, uuid);
+            throw BizException.FILE_EXCEPTION.newInstance("视频缩略图解析资源被占用 请稍后再试");
         }
-        throw BizException.FILE_EXCEPTION.newInstance("视频缩略图解析资源被占用 请稍后再试");
     }
 
     private static void closeGrabber(FFmpegFrameGrabber fFmpegFrameGrabber, InputStream inputStream) throws IOException {
