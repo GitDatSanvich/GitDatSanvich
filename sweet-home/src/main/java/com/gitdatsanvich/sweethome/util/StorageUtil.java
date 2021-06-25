@@ -41,19 +41,7 @@ public class StorageUtil {
 
     private static final String THUMBNAIL_SIGN = "_thumbnail";
 
-    public static String save(String fileName, InputStream fileInputStream, String uuid) throws IOException, BizException {
-        if (fileName == null) {
-            throw BizException.FILE_EXCEPTION.newInstance("文件名称获取为空");
-        }
-        int num = fileName.lastIndexOf(".");
-        if (-1 == num) {
-            throw BizException.FILE_EXCEPTION.newInstance("文件后缀获取失败");
-        }
-        String suffix = fileName.substring(num + 1);
-        return save(fileInputStream, suffix, uuid);
-    }
-
-    public static String saveThumbnail(String fileName, InputStream fileInputStream, String type, String uuid) throws BizException {
+    public static String saveThumbnail(String suffix, InputStream fileInputStream, String type, String uuid) throws BizException {
         long start = System.currentTimeMillis();
         String thumbnailUrl = null;
         try {
@@ -63,8 +51,6 @@ public class StorageUtil {
             }
             /*图片缩略图*/
             if (FileConstants.IMAGE.equals(type)) {
-                int num = fileName.lastIndexOf(".");
-                String suffix = fileName.substring(num + 1);
                 thumbnailUrl = getImageThumbnail(fileInputStream, suffix, uuid);
             }
             long end = System.currentTimeMillis();
@@ -77,7 +63,7 @@ public class StorageUtil {
     }
 
 
-    private static String save(InputStream inputStream, String suffix, String uuid) throws IOException {
+    public static String save(InputStream inputStream, String suffix, String uuid) throws IOException {
         String fileName = uuid + StringPool.DOT + suffix;
         String destination = URL_PREFIX + fileName;
         int index;

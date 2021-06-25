@@ -11,5 +11,4 @@ public interface FileConstants {
     String VIDEO = "VIDEO";
     String ALL_TYPE = "ALL_TYPE";
     String NO_NEED = "NO_NEED";
-    String REDIS_TIME_LOCK = "qf_file:file:redis_time_lock:";
 }

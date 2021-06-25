@@ -178,7 +178,7 @@ public class FileHeaderCheckUtil {
             if (originalFilename == null) {
                 throw BizException.FILE_EXCEPTION.newInstance("文件名称获取为空");
             }
-            int num = originalFilename.lastIndexOf(".");
+            int num = originalFilename.lastIndexOf(StringPool.DOT);
             if (-1 == num) {
                 throw BizException.FILE_EXCEPTION.newInstance("文件后缀获取失败");
             }

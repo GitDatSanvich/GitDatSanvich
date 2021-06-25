@@ -60,12 +60,19 @@ public class FileController {
                 InputStream streamForThumbnail = new ByteArrayInputStream(outputStream.toByteArray());
                 InputStream streamForSave = new ByteArrayInputStream(outputStream.toByteArray());
                 String originalFilename = file.getOriginalFilename();
-                assert originalFilename != null;
-                String url = StorageUtil.save(originalFilename, streamForSave, uuid);
+                if (originalFilename == null || StringPool.EMPTY.equals(originalFilename)) {
+                    throw BizException.FILE_EXCEPTION.newInstance("文件名为空");
+                }
+                int num = originalFilename.lastIndexOf(StringPool.DOT);
+                if (-1 == num) {
+                    throw BizException.FILE_EXCEPTION.newInstance("文件后缀获取失败");
+                }
+                String suffix = originalFilename.substring(num + 1);
+                String url = StorageUtil.save(streamForSave, suffix, uuid);
                 String thumbnail = null;
                 /*是否需要缩略图 是 执行*/
                 if (needThumbnail) {
-                    thumbnail = StorageUtil.saveThumbnail(originalFilename, streamForThumbnail, type, uuid);
+                    thumbnail = StorageUtil.saveThumbnail(suffix, streamForThumbnail, type, uuid);
                 }
                 fileResponseDTO.setFileName(originalFilename);
                 fileResponseDTO.setThumbnail(thumbnail);
