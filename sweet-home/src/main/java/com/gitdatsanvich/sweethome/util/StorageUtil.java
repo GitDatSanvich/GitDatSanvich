@@ -195,7 +195,7 @@ public class StorageUtil {
                 rgb[1] = (pixel & 0xff0000) >> 16;
                 rgb[2] = (pixel & 0xff00) >> 8;
                 rgb[3] = (pixel & 0xff);
-                //如果像素点不相等的数量超过50个 就判断为彩色图片
+                /*BLACK_RATE = 50 针对RGB三个值都小于50算一个黑色像素*/
                 if (rgb[1] < BLACK_RATE && rgb[2] < BLACK_RATE && rgb[3] < BLACK_RATE) {
                     o++;
                 }
@@ -207,8 +207,8 @@ public class StorageUtil {
         //100个像素里面20及以上都是黑的返回false
         int i1 = totalPixel / o;
         log.info("总像素" + totalPixel + "黑色像素为" + o + "判断为" + totalPixel / o);
-        /*20一下判断黑像素就是好图%*/
-        return i1 < 5;
+        /*20%以下判断黑像素就是好图*/
+        return i1 <= 5;
     }
 
     /**
