@@ -166,8 +166,10 @@ public class StorageUtil {
                 ByteArrayInputStream imageInputStreamForThumbnail = new ByteArrayInputStream(out.toByteArray());
                 ByteArrayInputStream imageInputStream = new ByteArrayInputStream(out.toByteArray());
                 /*这里返回的是视频原截图路径*/
-                /*缩略图 = 原路径分割"."在“."前面添加“_200x200”*/
+                /*缩略图 = 原路径分割"."在“."前面添加“_thumbnail”*/
+                /*原图片保存*/
                 String save = save(imageInputStream, THUMBNAIL_SUFFIX, uuid);
+                /*原图片缩略图保存*/
                 getImageThumbnail(imageInputStreamForThumbnail, THUMBNAIL_SUFFIX, uuid);
                 out.close();
                 return save;
