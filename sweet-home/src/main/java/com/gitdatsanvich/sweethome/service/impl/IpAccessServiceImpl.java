@@ -2,6 +2,7 @@ package com.gitdatsanvich.sweethome.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.gitdatsanvich.common.constants.CacheConstants;
 import com.gitdatsanvich.sweethome.mapper.IpAccessMapper;
 import com.gitdatsanvich.sweethome.model.dto.AccessDTO;
 import com.gitdatsanvich.sweethome.model.entity.BlockIp;
@@ -10,6 +11,7 @@ import com.gitdatsanvich.sweethome.service.BlockIpService;
 import com.gitdatsanvich.sweethome.service.IpAccessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,7 @@ public class IpAccessServiceImpl extends ServiceImpl<IpAccessMapper, IpAccess> i
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @Cacheable(value = CacheConstants.BLACK_IP, key = "#ip", unless = "#result.accessAble==true")
     public AccessDTO access(String ip) {
         logger.info("ip访问：" + ip);
         /*查询是否黑名单用户*/
