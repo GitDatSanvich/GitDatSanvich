@@ -1,4 +1,4 @@
-package com.gitdatsanvich.sweethome.util;
+package com.gitdatsanvich.sweethome.config;
 
 import com.gitdatsanvich.common.constants.CacheConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Configuration
-@EnableCaching //启用缓存
+@EnableCaching
 public class RedisConfig {
 
     /**

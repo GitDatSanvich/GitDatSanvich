@@ -7,9 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.tomcat.util.security.MD5Encoder;
+import org.springframework.util.DigestUtils;
 
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -27,10 +26,9 @@ import java.nio.charset.StandardCharsets;
 public class User extends Model<User> {
 
     private static final long serialVersionUID = 1L;
-
     public User(String username, String password, String name, String email) {
         this.username = username;
-        this.password = MD5Encoder.encode(password.getBytes(StandardCharsets.UTF_8));
+        this.password = DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8));
         this.name = name;
         this.email = email;
         this.createTime = System.currentTimeMillis();

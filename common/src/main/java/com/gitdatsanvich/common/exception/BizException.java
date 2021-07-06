@@ -32,5 +32,10 @@ public class BizException extends BaseException {
     /**
      * 文件类异常
      */
-    public static final BizException FILE_EXCEPTION = new BizException("E1000001", "{0}");
+    public static final BizException FILE_EXCEPTION = new BizException("E1000002", "{0}");
+
+    /**
+     * 法律相关异常
+     */
+    public static final BizException LAW_EXCEPTION = new BizException("E1000003", "{0}");
 }

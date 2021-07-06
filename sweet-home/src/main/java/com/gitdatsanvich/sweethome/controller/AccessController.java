@@ -46,8 +46,8 @@ public class AccessController {
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
         }
-        if (ip != null && ip.contains(",")) {
-            String[] ipArray = ip.split(",");
+        if (ip != null && ip.contains(StringPool.COMMA)) {
+            String[] ipArray = ip.split(StringPool.COMMA);
             ip = ipArray[0];
         }
         if (ip == null || StringPool.EMPTY.equals(ip)) {

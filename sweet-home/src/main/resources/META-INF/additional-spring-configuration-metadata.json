@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "dingding.webhook",
+      "type": "java.lang.String",
+      "description": "the webhook for ding ding bot."
+    },
+    {
+      "name": "log-reader.path",
+      "type": "java.lang.String",
+      "description": "log-reader path."
+    }
+  ] }

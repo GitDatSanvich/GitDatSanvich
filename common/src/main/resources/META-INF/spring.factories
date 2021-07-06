@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.gitdatsanvich.common.util.BlockedThreadPool
+  com.gitdatsanvich.common.util.BlockedThreadPool,\
+  com.gitdatsanvich.common.util.DingDingAlert

@@ -39,7 +39,7 @@ public class BlockedThreadPool<T> {
 
     private static final int CORE_POOL_SIZE = 10;
 
-    private static final int MAXIMUM_POOL_SIZE = 100;
+    private static final int MAXIMUM_POOL_SIZE = 15;
 
     private static final int KEEP_ALIVE_TIME = 5;
 
@@ -47,7 +47,7 @@ public class BlockedThreadPool<T> {
 
     private final int capacity = 100;
 
-    protected int timeout = 15;
+    protected int timeout = 600000;
 
     protected TimeUnit timeoutUnit = TimeUnit.SECONDS;
 
