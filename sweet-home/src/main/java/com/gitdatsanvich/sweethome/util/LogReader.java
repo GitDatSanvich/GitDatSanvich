@@ -1,12 +1,14 @@
 package com.gitdatsanvich.sweethome.util;
 
 import com.gitdatsanvich.common.util.DingDingAlert;
-import com.gitdatsanvich.sweethome.websocket.WebSocketServer;
+import com.gitdatsanvich.sweethome.netty.NettyServerHandler;
+import com.gitdatsanvich.sweethome.netty.WebSocketServerHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -22,6 +24,8 @@ public class LogReader {
     private final AtomicInteger readLine = new AtomicInteger(0);
     @Value("${log-reader.path}")
     private String LOG_PATH;
+    @Resource
+    WebSocketServerHandler webSocketServerHandler;
 
     @Scheduled(cron = "0/5 * * * * *")
     public void read() {
@@ -45,7 +49,7 @@ public class LogReader {
             if (lineIndex > readLine.get()) {
                 readLine.incrementAndGet();
                 //推送log
-                WebSocketServer.sendAll(line);
+                webSocketServerHandler.publishAll(line);
             }
         }
         in.close();

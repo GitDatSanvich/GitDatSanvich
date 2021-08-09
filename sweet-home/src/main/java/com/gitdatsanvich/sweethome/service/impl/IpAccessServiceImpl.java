@@ -28,7 +28,6 @@ import javax.annotation.Resource;
 @Service
 public class IpAccessServiceImpl extends ServiceImpl<IpAccessMapper, IpAccess> implements IpAccessService {
     private static final Logger logger = LoggerFactory.getLogger(IpAccessServiceImpl.class);
-
     @Resource
     private BlockIpService blockIpService;
 

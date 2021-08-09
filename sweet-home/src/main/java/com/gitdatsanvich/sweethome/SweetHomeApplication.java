@@ -1,5 +1,8 @@
 package com.gitdatsanvich.sweethome;
 
+import com.gitdatsanvich.common.constants.CommonConstants;
+import com.gitdatsanvich.sweethome.netty.NettyServer;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
@@ -10,12 +13,19 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.unit.DataSize;
 
+import javax.annotation.Resource;
 import javax.servlet.MultipartConfigElement;
 import java.io.File;
+import java.net.InetSocketAddress;
 
+/**
+ * @author gitdatsanvich
+ */
 @SpringBootApplication
 @EnableScheduling
-public class SweetHomeApplication {
+public class SweetHomeApplication implements CommandLineRunner {
+    @Resource
+    private NettyServer nettyServer;
 
     public static void main(String[] args) {
         SpringApplication.run(SweetHomeApplication.class, args);
@@ -55,5 +65,12 @@ public class SweetHomeApplication {
         threadPoolScheduler.setPoolSize(Runtime.getRuntime().availableProcessors());
         threadPoolScheduler.setRemoveOnCancelPolicy(true);
         return threadPoolScheduler;
+    }
+
+    @Override
+    public void run(String... strings) {
+        InetSocketAddress address = new InetSocketAddress(CommonConstants.SOCKET_IP, CommonConstants.PORT);
+        System.out.println("netty服务启动地址" + CommonConstants.SOCKET_IP + ":" + CommonConstants.PORT);
+        nettyServer.start(address);
     }
 }

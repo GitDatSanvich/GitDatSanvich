@@ -2,7 +2,6 @@ package com.gitdatsanvich.sweethome.service.impl;
 
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
-import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -27,16 +26,15 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.Callable;
 
 /**
@@ -65,7 +63,7 @@ public class LawServiceImpl implements LawService {
     }
 
     @Override
-    public List<Map<String, String>> getCompanyInfo(String companyNameSearch) throws IOException, BizException {
+    public List<Map<String, String>> getCompanyInfo(String companyNameSearch) throws IOException, BizException, InterruptedException {
         List<Map<String, String>> returnList = new ArrayList<>();
         Map<String, String> basicInfo = getBasicInfo(companyNameSearch);
         returnList.add(basicInfo);
@@ -192,7 +190,7 @@ public class LawServiceImpl implements LawService {
         return returnList;
     }
 
-    private Map<String, String> getBasicInfo(String companyNameSearch) throws IOException, BizException {
+    private Map<String, String> getBasicInfo(String companyNameSearch) throws IOException, BizException, InterruptedException {
         Map<String, String> companyInfoMap = new LinkedHashMap<>();
         companyInfoMap.put(EXCEL_HEADER.get(1), companyNameSearch);
         /*爬虫定义*/
@@ -229,6 +227,9 @@ public class LawServiceImpl implements LawService {
         String contractPhone = getContractPhone(page);
         companyInfoMap.put(EXCEL_HEADER.get(10), contractPhone);
         companyInfoMap.put(EXCEL_HEADER.get(11), page.getUrl().toString());
+        Thread.sleep(5000);
+        page.executeJavaScript("");
+        page.executeJavaScript("window.scrollTo(0, document.body.scrollHeight)");
         webClient.close();
         return companyInfoMap;
     }
@@ -280,7 +281,20 @@ public class LawServiceImpl implements LawService {
             return CommonConstants.NOTHING;
         }
         HtmlTextInput companyNameAnchor = (HtmlTextInput) companyNameList.get(0);
-        return companyNameAnchor.getText();
+        String text = companyNameAnchor.getText();
+        /*改写input输入框*/
+        Random random = new Random();
+        String textChange = random.nextInt(100000) + "";
+        StringBuilder textTemp = new StringBuilder();
+        for (int i = 0; i < textChange.length(); i++) {
+            textTemp.append(textChange);
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException ignore) {
+            }
+            companyNameAnchor.setText(textTemp.toString());
+        }
+        return text;
     }
 
     /**
@@ -292,26 +306,20 @@ public class LawServiceImpl implements LawService {
      * @throws IOException  IOException
      * @throws BizException BizException
      */
-    private HtmlPage clickSearch(WebClient webClient, String url) throws IOException, BizException {
+    private HtmlPage clickSearch(WebClient webClient, String url) throws IOException, BizException, InterruptedException {
         HtmlPage page = webClient.getPage(url);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        Thread.sleep(5000);
+        System.out.println(page.asXml());
         List<Object> byXPath = page.getByXPath("/html/body/div[1]/div[1]/div/div[1]/div[2]/div[2]/div/div[1]/div[2]/div/h3/a");
         if (byXPath == null || byXPath.size() == 0) {
             throw BizException.LAW_EXCEPTION.newInstance("未搜索到相关公司");
         }
+        page.executeJavaScript("window.scrollTo(0, document.body.scrollHeight)");
+        Thread.sleep(5000);
         /*找到搜索位第一位并点击*/
         HtmlAnchor searchHref = (HtmlAnchor) byXPath.get(0);
         url = "https://aiqicha.baidu.com" + searchHref.getHrefAttribute();
         page = webClient.getPage(url);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return page;
     }
 
@@ -323,8 +331,16 @@ public class LawServiceImpl implements LawService {
         webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         webClient.getOptions().setUseInsecureSSL(true);
-        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setCssEnabled(true);
         webClient.getOptions().setJavaScriptEnabled(true);
+        webClient.getOptions().setDoNotTrackEnabled(true);
+        webClient.getOptions().setGeolocationEnabled(true);
+        webClient.getOptions().setActiveXNative(true);
+        webClient.getOptions().setWebSocketEnabled(true);
+        webClient.getOptions().setDownloadImages(true);
+        webClient.getOptions().setAppletEnabled(true);
+        webClient.getOptions().setPopupBlockerEnabled(true);
+        webClient.getOptions().setRedirectEnabled(true);
         webClient.setAjaxController(new NicelyResynchronizingAjaxController());
         webClient.setJavaScriptTimeout(100000000);
         webClient.getOptions().setTimeout(1000000);

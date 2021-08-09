@@ -37,7 +37,7 @@ public class LawController {
     private LawService lawService;
 
     @GetMapping
-    public R<List<Map<String, String>>> downLoad(@RequestParam("companyName") String companyName) throws IOException {
+    public R<List<Map<String, String>>> downLoad(@RequestParam("companyName") String companyName) throws IOException, InterruptedException {
         log.info("获取公司信息:" + companyName);
         try {
             List<Map<String, String>> companyInfo = lawService.getCompanyInfo(companyName);

@@ -37,9 +37,9 @@ public class BlockedThreadPool<T> {
 
     protected ThreadPoolExecutor pool = null;
 
-    private static final int CORE_POOL_SIZE = 10;
+    private static final int CORE_POOL_SIZE = 2;
 
-    private static final int MAXIMUM_POOL_SIZE = 15;
+    private static final int MAXIMUM_POOL_SIZE = 4;
 
     private static final int KEEP_ALIVE_TIME = 5;
 
@@ -195,7 +195,6 @@ public class BlockedThreadPool<T> {
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
             if (!executor.isShutdown()) {
                 logger.info("阻塞拒绝直接执行");
-                logger.info(Thread.currentThread().getName());
                 /*等待1秒*/
                 Thread.sleep(1000);
                 /*重新提交到线程池*/

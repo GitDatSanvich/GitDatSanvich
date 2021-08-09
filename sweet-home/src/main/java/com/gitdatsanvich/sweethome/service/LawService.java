@@ -12,7 +12,7 @@ import java.util.List;
  * @date 2021/7/5 16:16
  */
 public interface LawService {
-    List<Map<String, String>> getCompanyInfo(String companyName) throws IOException, BizException;
+    List<Map<String, String>> getCompanyInfo(String companyName) throws IOException, BizException, InterruptedException;
 
     void getCompanyInfoBatch(List<String> nameList) throws IOException;
 }
