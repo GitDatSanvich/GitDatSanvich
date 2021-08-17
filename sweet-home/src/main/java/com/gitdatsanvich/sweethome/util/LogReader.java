@@ -1,7 +1,6 @@
 package com.gitdatsanvich.sweethome.util;
 
 import com.gitdatsanvich.common.util.DingDingAlert;
-import com.gitdatsanvich.sweethome.netty.NettyServerHandler;
 import com.gitdatsanvich.sweethome.netty.WebSocketServerHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

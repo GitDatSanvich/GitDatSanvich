@@ -52,6 +52,10 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         //首次请求之后先进行握手，通过http请求来实现
         if (msg instanceof FullHttpRequest) {
             handleHttpRequest(ctx, (FullHttpRequest) msg);
+        } else if (msg instanceof CloseWebSocketFrame) {
+            /*关闭socket*/
+            closeSocket(ctx);
+            return;
         } else if (msg instanceof WebSocketFrame) {
             handleWebSocketRequest(ctx, (WebSocketFrame) msg);
         }
@@ -65,6 +69,19 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             String clientIp = inSocket.getAddress().getHostAddress();
             int clientPort = inSocket.getPort();
             log.info("客户端【" + channelId + "】连接netty[IP:" + clientIp + "--->PORT:" + clientPort + "]");
+            log.info("连接通道数量: " + CHANNEL_MAP.size());
+        }
+    }
+
+    private void closeSocket(ChannelHandlerContext ctx) {
+        InetSocketAddress inSocket = (InetSocketAddress) ctx.channel().remoteAddress();
+        String clientIp = inSocket.getAddress().getHostAddress();
+        ChannelId channelId = ctx.channel().id();
+        //包含此客户端才去删除
+        if (CHANNEL_MAP.containsKey(channelId)) {
+            //删除连接
+            CHANNEL_MAP.remove(channelId);
+            log.info("客户端【" + channelId + "】退出netty服务器[IP:" + clientIp + "--->PORT:" + inSocket.getPort() + "]");
             log.info("连接通道数量: " + CHANNEL_MAP.size());
         }
     }
@@ -103,7 +120,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
      */
     private String getWebSocketLocation(FullHttpRequest request) {
         String location = request.headers().get(HttpHeaderNames.HOST) + "/websocket";
-        System.out.println(location);
         return "ws://" + location;
     }
 
@@ -112,16 +128,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         if (frame instanceof CloseWebSocketFrame) {
             handShaker.close(ctx.channel(), (CloseWebSocketFrame) frame.retain());
             //包含此客户端才去删除
-            InetSocketAddress inSocket = (InetSocketAddress) ctx.channel().remoteAddress();
-            String clientIp = inSocket.getAddress().getHostAddress();
-            ChannelId channelId = ctx.channel().id();
-            if (CHANNEL_MAP.containsKey(channelId)) {
-                //删除连接
-                CHANNEL_MAP.remove(channelId);
-                log.info("客户端【" + channelId + "】退出netty服务器[IP:" + clientIp + "--->PORT:" + inSocket.getPort() + "]");
-                log.info("连接通道数量: " + CHANNEL_MAP.size());
-            }
-            return;
+            closeSocket(ctx);
         }
         //握手 PING/PONG
         if (frame instanceof PingWebSocketFrame) {
