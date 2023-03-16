@@ -38,4 +38,9 @@ public class BizException extends BaseException {
      * 法律相关异常
      */
     public static final BizException LAW_EXCEPTION = new BizException("E1000003", "{0}");
+
+    /**
+     * CHAT_GPT相关异常
+     */
+    public static final BizException CHAT_GPT_EXCEPTION = new BizException("E1000004", "{0}");
 }
