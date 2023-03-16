@@ -43,6 +43,15 @@ public class StorageUtil {
 
     private static final String THUMBNAIL_SIGN = "_thumbnail";
 
+    /**
+     * 缩略图保存
+     * @param suffix 后缀名
+     * @param fileInputStream 文件流
+     * @param type 自定义类型
+     * @param uuid  文件唯一UUID
+     * @return url
+     * @throws BizException BizException
+     */
     public static String saveThumbnail(String suffix, InputStream fileInputStream, String type, String uuid) throws BizException {
         long start = System.currentTimeMillis();
         String thumbnailUrl = null;
@@ -64,7 +73,14 @@ public class StorageUtil {
         }
     }
 
-
+    /**
+     * 保存
+     * @param inputStream inputStream
+     * @param suffix 后缀名
+     * @param uuid 唯一UUID
+     * @return URL
+     * @throws IOException  IOException
+     */
     public static String save(InputStream inputStream, String suffix, String uuid) throws IOException {
         String fileName = uuid + StringPool.DOT + suffix;
         String destination = URL_PREFIX + fileName;
@@ -80,6 +96,14 @@ public class StorageUtil {
         return destination;
     }
 
+    /**
+     * 图片缩略图
+     * @param  inputStream inputStream
+     * @param suffix 后缀名
+     * @param uuid 唯一UUID
+     * @return URL
+     * @throws  IOException IOException
+     */
     private static String getImageThumbnail(InputStream inputStream, String suffix, String uuid) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Thumbnails.of(inputStream).scale(0.5).outputFormat(suffix).outputQuality(0.5).toOutputStream(outputStream);
