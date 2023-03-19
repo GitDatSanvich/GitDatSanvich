@@ -7,14 +7,14 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: gitdatsanvich
-    url: jdbc:mysql://39.107.42.124:3309/gitdatsanvich?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+    username: ######
+    password: ######
+    url: ######
   redis:
-    host: 39.107.42.124
-    port: 6378
-    password: gitdatsanvich
-    timeout: 60000
+    host: ######
+    port: ######
+    password: ######
+    timeout: ######
 # MyBaits-plus配置
 mybatis-plus:
   mapper-locations: classpath:/mapper/*Mapper.xml
@@ -30,11 +30,11 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 
 dingding:
-  webhook: https://oapi.dingtalk.com/robot/send?access_token=be9d691edbbf0af8a21912cd19bf661679ffb0c2ac08cc8cdba74f36b3bd7752
+  webhook: ######
 log-reader:
   path: ./gitdatsanvich.log
 chat-gpt:
-  key: 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
+  key: ######
   url:
     models: https://api.openai.com/v1/models
     talk: https://api.openai.com/v1/chat/completions

@@ -2,6 +2,7 @@ package com.gitdatsanvich.sweethome.controller;
 
 import cn.hutool.json.JSONUtil;
 import com.gitdatsanvich.common.exception.BizException;
+import com.gitdatsanvich.common.util.DingDingAlert;
 import com.gitdatsanvich.common.util.HttpSendWay;
 import com.gitdatsanvich.common.util.HttpUtil;
 import com.gitdatsanvich.common.util.R;
@@ -13,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,13 +43,19 @@ public class ChatGPTController {
 
     @PostMapping("/talk")
     public R<ChatDTO> talk(@RequestBody ChatDTO chatDTO) throws BizException {
-        if (chatDTO == null) {
-            throw BizException.CHAT_GPT_EXCEPTION.newInstance("参数为空");
+        String res = null;
+        try {
+            if (chatDTO == null) {
+                throw BizException.CHAT_GPT_EXCEPTION.newInstance("参数为空");
+            }
+            res = HttpUtil.sendChatGPT(HttpSendWay.POST, CHAT_GPT_KEY, TALK_URL,
+                    this.toTalkMessage(chatDTO.getMessage()));
+            String returnString = JsonPath.read(res, "$.choices[0].message.content");
+            chatDTO.setMessage(returnString);
+        } catch (BizException e) {
+            DingDingAlert.pushAlert("ChatGpt错误", Arrays.toString(e.getStackTrace()));
+            return R.failed("报错啦 啥问题找ChatGPT去!");
         }
-        String res = HttpUtil.sendChatGPT(HttpSendWay.POST, CHAT_GPT_KEY, TALK_URL,
-                this.toTalkMessage(chatDTO.getMessage()));
-        String returnString = JsonPath.read(res, "$.choices[0].message.content");
-        chatDTO.setMessage(returnString);
         return R.ok(chatDTO);
     }
 
