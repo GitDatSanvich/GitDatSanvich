@@ -57,7 +57,7 @@ public class ChatGPTController {
             res = HttpUtil.sendChatGPT(HttpSendWay.POST, CHAT_GPT_KEY, TALK_URL,
                     this.toTalkMessage(message));
             String returnString = JsonPath.read(res, "$.choices[0].message.content");
-            log.info("GPT回复了:" + message + "  ,消息ID: " + uuid);
+            log.info("GPT回复了:" + returnString + "  ,消息ID: " + uuid);
             chatDTO.setMessage(returnString);
         } catch (BizException e) {
             DingDingAlert.pushAlert("ChatGpt错误", Arrays.toString(e.getStackTrace()));
