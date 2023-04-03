@@ -11,6 +11,7 @@ import com.gitdatsanvich.sweethome.model.dto.ChatMessage;
 import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,25 +45,27 @@ public class ChatGPTController {
     @PostMapping("/talk")
     public R<ChatDTO> talk(@RequestBody ChatDTO chatDTO) throws BizException {
         String res = null;
-        try {
-            if (chatDTO == null) {
-                throw BizException.CHAT_GPT_EXCEPTION.newInstance("参数为空");
-            }
-            UUID uuid = UUID.randomUUID();
-            String message = chatDTO.getMessage();
-            if (StringUtils.isEmpty(message) || StringUtils.isBlank(message)) {
-                return R.failed("不要输入空格啦！");
-            }
-            log.info("GPT有人问:" + message + "  ,消息ID: " + uuid);
-            res = HttpUtil.sendChatGPT(HttpSendWay.POST, CHAT_GPT_KEY, TALK_URL,
-                    this.toTalkMessage(message));
-            String returnString = JsonPath.read(res, "$.choices[0].message.content");
-            log.info("GPT回复了:" + returnString + "  ,消息ID: " + uuid);
-            chatDTO.setMessage(returnString);
-        } catch (BizException e) {
-            DingDingAlert.pushAlert("ChatGpt错误", Arrays.toString(e.getStackTrace()));
-            return R.failed("报错啦 啥问题找ChatGPT去!");
+        if (chatDTO == null) {
+            throw BizException.CHAT_GPT_EXCEPTION.newInstance("参数为空");
         }
+        UUID uuid = UUID.randomUUID();
+        String message = chatDTO.getMessage();
+        if (StringUtils.isEmpty(message) || StringUtils.isBlank(message)) {
+            return R.failed("不要输入空格啦！");
+        }
+        log.info("GPT有人问:" + message + "  ,消息ID: " + uuid);
+        res = HttpUtil.sendChatGPT(HttpSendWay.POST, CHAT_GPT_KEY, TALK_URL,
+                this.toTalkMessage(message));
+        String returnString = null;
+        try {
+            returnString = JsonPath.read(res, "$.choices[0].message.content");
+        } catch (Exception e) {
+            String escapeJson = StringEscapeUtils.escapeJson(res);
+            DingDingAlert.pushAlert("ChatGpt读取错误！", escapeJson);
+            throw BizException.CHAT_GPT_EXCEPTION.newInstance("ChatGpt读取错误！:" + escapeJson);
+        }
+        log.info("GPT回复了:" + returnString + "  ,消息ID: " + uuid);
+        chatDTO.setMessage(returnString);
         return R.ok(chatDTO);
     }
 
