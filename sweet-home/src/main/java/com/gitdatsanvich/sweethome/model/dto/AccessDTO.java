@@ -15,7 +15,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class AccessDTO implements Serializable {
     private String ip;
-    private Integer accessTime;
+    private Long accessTime;
     private Boolean accessAble;
-    private Integer totalAccessTime;
+    private Long totalAccessTime;
 }

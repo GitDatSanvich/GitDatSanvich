@@ -2,12 +2,12 @@ package com.gitdatsanvich.sweethome.util;
 
 import com.gitdatsanvich.common.util.DingDingAlert;
 import com.gitdatsanvich.sweethome.netty.WebSocketServerHandler;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

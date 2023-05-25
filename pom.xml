@@ -12,14 +12,14 @@
         <module>common</module>
     </modules>
     <properties>
-        <spring-boot.version>2.1.5.RELEASE</spring-boot.version>
+        <spring-boot.version>3.1.0</spring-boot.version>
         <spring-cloud.version>Greenwich.SR1</spring-cloud.version>
         <spring-platform.version>Cairo-SR8</spring-platform.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <spring-boot-admin.version>2.1.4</spring-boot-admin.version>
-        <hutool.version>5.7.3</hutool.version>
+        <hutool.version>5.8.11</hutool.version>
         <kaptcha.version>0.0.9</kaptcha.version>
         <curator.version>2.10.0</curator.version>
         <velocity.version>1.7</velocity.version>
@@ -32,7 +32,7 @@
         <security.oauth.version>2.3.5.RELEASE</security.oauth.version>
         <security.oauth.auto.version>2.1.2.RELEASE</security.oauth.auto.version>
         <activiti.version>5.22.0</activiti.version>
-        <mybatis-plus.version>3.4.2</mybatis-plus.version>
+        <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <druid.version>1.1.17</druid.version>
         <mysql.connector.version>8.0.16</mysql.connector.version>
         <qf.version>1.0.0</qf.version>
@@ -43,19 +43,6 @@
         <seata-cloud.version>2.2.0.RELEASE</seata-cloud.version>
     </properties>
     <dependencies>
-        <!--web 模块-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring-boot.version}</version>
-            <exclusions>
-                <!--排除tomcat依赖-->
-                <exclusion>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                    <groupId>org.springframework.boot</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
@@ -165,22 +152,6 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>${spring-boot.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>repackage</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
