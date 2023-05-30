@@ -50,6 +50,8 @@ public class AccessController {
             String[] ipArray = ip.split(StringPool.COMMA);
             ip = ipArray[0];
         }
+        String session = request.getSession().getId();
+        log.info("当前请求IP为：{},当前请求Session为:{}.", ip, session);
         if (ip == null || StringPool.EMPTY.equals(ip)) {
             return R.ok(new AccessDTO(ip, 0L, true, 0L));
         }
