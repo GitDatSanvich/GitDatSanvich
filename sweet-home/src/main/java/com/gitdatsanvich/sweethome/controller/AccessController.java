@@ -4,14 +4,14 @@ import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.gitdatsanvich.common.util.R;
 import com.gitdatsanvich.sweethome.model.dto.AccessDTO;
 import com.gitdatsanvich.sweethome.service.IpAccessService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * @author TangChen
@@ -50,8 +50,10 @@ public class AccessController {
             String[] ipArray = ip.split(StringPool.COMMA);
             ip = ipArray[0];
         }
+        String session = request.getSession().getId();
+        log.info("当前请求IP为：{},当前请求Session为:{}.", ip, session);
         if (ip == null || StringPool.EMPTY.equals(ip)) {
-            return R.ok(new AccessDTO(ip, 0, true, 0));
+            return R.ok(new AccessDTO(ip, 0L, true, 0L));
         }
         return R.ok(ipAccessService.access(ip));
     }

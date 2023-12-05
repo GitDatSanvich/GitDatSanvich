@@ -47,8 +47,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>5.2.10.RELEASE</version>
-            <scope>compile</scope>
+            <version>6.0.9</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -117,7 +116,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.66.Final</version>
+            <version>4.1.86.Final</version>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
