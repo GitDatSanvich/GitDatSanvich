@@ -49,9 +49,6 @@ public class BaseException extends Exception {
         this.message = MessageFormat.format(message, args);
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
     public String getDefineCode() {
         return this.defineCode;
     }

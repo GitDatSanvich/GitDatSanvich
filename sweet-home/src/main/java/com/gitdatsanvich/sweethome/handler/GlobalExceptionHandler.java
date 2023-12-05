@@ -1,6 +1,5 @@
 package com.gitdatsanvich.sweethome.handler;
 
-import com.gitdatsanvich.common.exception.BizException;
 import com.gitdatsanvich.common.util.DingDingAlert;
 import com.gitdatsanvich.common.util.R;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +19,6 @@ public class GlobalExceptionHandler {
     public R<Boolean> handleException(Exception e) {
         log.error("发生未知异常", e);
         DingDingAlert.pushAlert("异常！", e.getMessage());
-        if (e instanceof BizException) {
-            return R.failed(e.getMessage());
-        } else {
-            return R.failed("未知错误");
-        }
+        return R.failed("未知错误");
     }
 }

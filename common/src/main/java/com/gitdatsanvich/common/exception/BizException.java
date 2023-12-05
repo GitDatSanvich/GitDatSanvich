@@ -19,12 +19,7 @@ public class BizException extends BaseException {
         ex.setMessage(this.message, params);
         return ex;
     }
-    public BizException newInstance(String message) {
-        this.message = message;
-        BizException ex = new BizException(this.defineCode, this.message);
-        ex.setMessage(this.message);
-        return ex;
-    }
+
 
     public BizException(String defineCode, String msg) {
         super(defineCode, msg);
