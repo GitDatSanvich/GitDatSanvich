@@ -2,8 +2,6 @@ package com.gitdatsanvich.sweethome;
 
 import com.gitdatsanvich.common.constants.CommonConstants;
 import com.gitdatsanvich.sweethome.netty.NettyServer;
-import jakarta.annotation.Resource;
-import jakarta.servlet.MultipartConfigElement;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +13,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.util.unit.DataSize;
 
+import javax.annotation.Resource;
+import javax.servlet.MultipartConfigElement;
 import java.io.File;
 import java.net.InetSocketAddress;
 

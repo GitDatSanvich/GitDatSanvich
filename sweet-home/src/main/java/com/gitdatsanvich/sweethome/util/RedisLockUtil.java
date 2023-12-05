@@ -1,12 +1,11 @@
 package com.gitdatsanvich.sweethome.util;
 
-import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.params.SetParams;
 
+import javax.annotation.Resource;
 import java.util.Collections;
 
 @Component
@@ -38,10 +37,7 @@ public class RedisLockUtil {
     public Boolean tryLock(String lockKey, String clientId, long seconds) {
         return stringRedisTemplate.execute((RedisCallback<Boolean>) redisConnection -> {
             Jedis jedis = (Jedis) redisConnection.getNativeConnection();
-            SetParams setParams = SetParams.setParams();
-            setParams.ex(seconds);
-            setParams.nx();
-            String result = jedis.set(lockKey, clientId, setParams);
+            String result = jedis.set(lockKey, clientId, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, seconds);
             if (LOCK_SUCCESS.equals(result)) {
                 return Boolean.TRUE;
             }
